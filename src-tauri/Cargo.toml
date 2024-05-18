@@ -5,7 +5,6 @@ description = "A add for checking md5"
 authors = ["zrll"]
 license = "MIT"
 repository = ""
-default-run = "app"
 edition = "2021"
 rust-version = "1.60"
 
