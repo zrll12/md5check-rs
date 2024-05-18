@@ -1,6 +1,6 @@
 {
-  "name": "tauri-mantine-template",
-  "version": "1.0.0",
+  "name": "md5checker-rs",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
