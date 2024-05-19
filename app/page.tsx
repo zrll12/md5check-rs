@@ -21,9 +21,10 @@ export default function HomePage() {
     async function addNewFile() {
         invoke('get_new_file').then((res) => {
             const newFiles = [...files];
-            newFiles.push(res as string);
-            // newFiles.sort();
-            setFiles(newFiles);
+            if (!files.includes(res as string)) {
+                newFiles.push(res as string);
+                setFiles(newFiles);
+            }
         });
     }
 
