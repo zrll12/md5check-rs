@@ -1,9 +1,17 @@
 'use client';
 
-import { Button, Group, Menu, Progress, Table, Text } from '@mantine/core';
+import { Button, Menu, Progress, Table, Text } from '@mantine/core';
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
+import { range } from '@mantine/hooks';
+
+function randomString(length: number) {
+    const chars = '1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm';
+    let result = '';
+    range(0, length).forEach(() => { result += chars[Math.floor(Math.random() * chars.length)]; });
+    return result;
+}
 
 function getProperSizePrompt(size: number): string {
     if (size < 1024 * 1024) {
@@ -24,7 +32,8 @@ export default function FileRow(props: FileRowProps) {
 
     const [started, setStarted] = useState(false);
     const [finished, setFinished] = useState(false);
-    const eventName = `progress-${fileName.replace(/[|&;$%@"<>()+,.]/g, '')}`;
+    const [id] = useState(randomString(6));
+    const eventName = `progress-${id}`;
 
     invoke('get_file_size', { file: props.file })
         .then((value) => {
@@ -32,7 +41,7 @@ export default function FileRow(props: FileRowProps) {
             if (!started) {
                 console.log(props.file, fileName);
                 setStarted(true);
-                invoke('sum_md5', { name: props.file }).then((r) => {
+                invoke('sum_md5', { name: props.file, event: id }).then((r) => {
                     setHash(r as string);
                     setFinished(true);
                 });
@@ -42,6 +51,7 @@ export default function FileRow(props: FileRowProps) {
                         const progress_new = event.payload as number;
                         if (progress_new !== 0 && !finished) {
                             setProgress(progress_new);
+                            // @ts-ignore
                             setProgressPercent((progress_new / value as number) * 100);
                         }
                     }

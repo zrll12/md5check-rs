@@ -5,16 +5,16 @@ use md5::{Digest, Md5};
 use tauri::{AppHandle, Manager};
 
 pub trait MD5Checker {
-    async fn check_md5(&mut self, app_handle: AppHandle, name: &str) -> String;
+    async fn check_md5(&mut self, app_handle: AppHandle, name: &str, event: &str) -> String;
 }
 
 impl MD5Checker for File {
-    async fn check_md5(&mut self, app_handle: AppHandle, name: &str) -> String {
+    async fn check_md5(&mut self, app_handle: AppHandle, name: &str, event: &str) -> String {
         println!("Start checking md5 for {}", name);
         let mut buffer = [0; 4096];
         let mut count = 0;
         let mut hasher = Md5::new();
-        let event_name = "progress-".to_string() + name.chars().filter(|e| e.is_alphanumeric() || e.is_numeric()).collect::<String>().as_str();
+        let event_name = "progress-".to_string() + event;
         println!("Emitting event {}", event_name);
 
         while let Ok(n) = self.read(&mut buffer[..]) {
