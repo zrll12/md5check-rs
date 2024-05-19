@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Menu, Progress, Table, Text } from '@mantine/core';
+import {Button, Menu, Progress, ScrollArea, Table, Text} from '@mantine/core';
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
@@ -64,10 +64,18 @@ export default function FileRow(props: FileRowProps) {
             <Table.Td>
                 <Menu>
                     <Menu.Target>
-                        <Button variant="transparent">{fileName}</Button>
+                        <ScrollArea w={300}>
+                            <Button variant="transparent">{fileName}</Button>
+                        </ScrollArea>
                     </Menu.Target>
                     <Menu.Dropdown>
-                        <Menu.Item onClick={props.onDelete} color="red">Remove this file from list</Menu.Item>
+                        <Menu.Item
+                          onClick={() => {
+                            invoke('stop_sum', { event: id })
+                                .then(props.onDelete);
+                          }}
+                          color="red">Remove this file from list
+                        </Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
             </Table.Td>

@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::Read;
-use async_channel::Sender;
 use md5::{Digest, Md5};
 use tauri::{AppHandle, Manager};
+use crate::check::THREAD_CACHE;
 
 pub trait MD5Checker {
     async fn check_md5(&mut self, app_handle: AppHandle, name: &str, event: &str) -> String;
@@ -30,14 +30,21 @@ impl MD5Checker for File {
                 // all is used
                 hasher.update(&buffer);
                 count += n;
-                if count % (1024 * 10240) == 0 {
+                if count % (1024 * 1024 * 10) == 0 {
                     app_handle.emit_all(&event_name, count).unwrap()
+                }
+                if count % (1024 * 1024 * 100) == 0 {
+                    if !THREAD_CACHE.contains_key(event) {
+                        println!("Stop checking md5 for {}", name);
+                        return "".to_string();
+                    }
                 }
                 // println!("a {}", n);
             }
         }
         let hash = hasher.finalize();
         println!("Finish checking md5 for {}", name);
+        THREAD_CACHE.remove(event);
         return hash.iter().map(|e| format!("{:02X}", e)).collect::<String>();
     }
 }
