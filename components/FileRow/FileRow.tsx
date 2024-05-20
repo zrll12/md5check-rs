@@ -1,6 +1,6 @@
 'use client';
 
-import {Button, Menu, Progress, ScrollArea, Table, Text} from '@mantine/core';
+import { Button, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
@@ -24,6 +24,9 @@ function getProperSizePrompt(size: number): string {
 }
 
 export default function FileRow(props: FileRowProps) {
+    if (props.file === '') {
+        return <></>;
+    }
     const [size, setSize] = useState(0);
     const [hash, setHash] = useState('Loading...');
     const [progress, setProgress] = useState(0);
@@ -33,7 +36,15 @@ export default function FileRow(props: FileRowProps) {
     const [started, setStarted] = useState(false);
     const [finished, setFinished] = useState(false);
     const [id] = useState(randomString(6));
-    const eventName = `progress-${id}`;
+    const progressEventName = `progress-${id}`;
+    const finishEventName = `finish-${id}`;
+
+    listen(finishEventName, (event) => {
+        if (event.event === finishEventName) {
+            setHash(event.payload as string);
+            setFinished(true);
+        }
+    }).then(() => {});
 
     invoke('get_file_size', { file: props.file })
         .then((value) => {
@@ -41,13 +52,10 @@ export default function FileRow(props: FileRowProps) {
             if (!started) {
                 console.log(props.file, fileName);
                 setStarted(true);
-                invoke('sum_md5', { name: props.file, event: id }).then((r) => {
-                    setHash(r as string);
-                    setFinished(true);
-                });
+                invoke('sum_md5', { name: props.file, event: id }).then(() => {});
 
-                listen(eventName, (event) => {
-                    if (event.event === eventName) {
+                listen(progressEventName, (event) => {
+                    if (event.event === progressEventName) {
                         const progress_new = event.payload as number;
                         if (progress_new !== 0 && !finished) {
                             setProgress(progress_new);
@@ -55,7 +63,7 @@ export default function FileRow(props: FileRowProps) {
                             setProgressPercent((progress_new / value as number) * 100);
                         }
                     }
-                }).then(() => { console.log('Listening to', eventName); });
+                }).then(() => {});
             }
         });
 
@@ -92,7 +100,7 @@ export default function FileRow(props: FileRowProps) {
                 }
             </Table.Td>
             <Table.Td> {hash} </Table.Td>
-            <Table.Td>{eventName}</Table.Td>
+            <Table.Td>{finishEventName}</Table.Td>
         </Table.Tr>
     );
 }

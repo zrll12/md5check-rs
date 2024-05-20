@@ -63,17 +63,18 @@ export default function HomePage() {
                                     <Table.Th>Progress</Table.Th>
                                     <Table.Th></Table.Th>
                                     <Table.Th>Hash</Table.Th>
-                                    <Table.Th>Record</Table.Th>
+                                    <Table.Th>Id</Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
-                                {files.map((file, index) =>
+                                {// @ts-ignore
+                                    files.map((file: string, index: number) =>
                                     <FileRow
                                       checkMode
                                       file={file}
                                       onDelete={() => {
-                                            const deleted_file = [...files];
-                                            deleted_file.splice(index, 1);
+                                          const deleted_file = [...files];
+                                            deleted_file[index] = '';
                                             setFiles(deleted_file);
                                         }} />)}
                             </Table.Tbody>
