@@ -1,5 +1,4 @@
 use rfd::AsyncFileDialog;
-use serde::{Deserialize, Serialize};
 
 #[tauri::command]
 pub async fn get_md5_list() -> Result<String, String> {
@@ -17,7 +16,8 @@ pub async fn get_file_size(file: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-pub async fn get_new_file() -> Result<String, String> {
-    let file = AsyncFileDialog::new().pick_file().await.ok_or("No file selected")?;
-    Ok(file.path().canonicalize().unwrap().to_str().unwrap().to_string())
+pub async fn get_new_file() -> Result<Vec<String>, String> {
+    let file = AsyncFileDialog::new().pick_files().await.ok_or("No file selected")?;
+    let file = file.iter().map(|e| e.path().canonicalize().unwrap().to_str().unwrap().to_string()).collect();
+    Ok(file)
 }

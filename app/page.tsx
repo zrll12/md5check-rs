@@ -20,11 +20,16 @@ export default function HomePage() {
 
     async function addNewFile() {
         invoke('get_new_file').then((res) => {
-            const newFiles = [...files];
-            if (!files.includes(res as string)) {
-                newFiles.push(res as string);
-                setFiles(newFiles);
+            console.log(res);
+            const newFiles = res as string[];
+            const newFile = [...files];
+            for (const file of newFiles) {
+                console.log(file);
+                if (!files.includes(file)) {
+                    newFile.push(file);
+                }
             }
+            setFiles(newFile);
         });
     }
 
@@ -74,6 +79,7 @@ export default function HomePage() {
                             </Table.Tbody>
                         </Table>
                     </Box>
+                    <Space h={20} />
                 </ScrollArea>
             </Stack>
         </>

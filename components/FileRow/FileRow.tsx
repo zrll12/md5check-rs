@@ -60,7 +60,7 @@ export default function FileRow(props: FileRowProps) {
         });
 
     return (
-        <Table.Tr>
+        <Table.Tr key={props.file}>
             <Table.Td>
                 <Menu>
                     <Menu.Target>
