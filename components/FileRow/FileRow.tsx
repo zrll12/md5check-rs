@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
+import {Box, Button, Menu, Progress, ScrollArea, Table, Text} from '@mantine/core';
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
@@ -72,7 +72,7 @@ export default function FileRow(props: FileRowProps) {
             <Table.Td>
                 <Menu>
                     <Menu.Target>
-                        <ScrollArea w={300}>
+                        <ScrollArea maw={300}>
                             <Button variant="transparent">{fileName}</Button>
                         </ScrollArea>
                     </Menu.Target>
@@ -89,15 +89,17 @@ export default function FileRow(props: FileRowProps) {
             </Table.Td>
             <Table.Td> {size === 0 ? 'Loading' : getProperSizePrompt(size)} </Table.Td>
             <Table.Td>
-                <Progress size="xl" value={progressPercent} />
+                <Progress size="xl" value={finished ? 100 : progressPercent} />
             </Table.Td>
             <Table.Td>
-                {finished ? 'Finished' :
-                    <Text>
-                        {progressPercent.toFixed(0)}%
-                        ({getProperSizePrompt(progress)}/{getProperSizePrompt(size)})
-                    </Text>
-                }
+                <ScrollArea w={finished ? 80 : 220}>
+                    {finished ? 'Finished' :
+                        <Text>
+                            {progressPercent.toFixed(0)}%
+                            ({getProperSizePrompt(progress)}/{getProperSizePrompt(size)})
+                        </Text>
+                    }
+                </ScrollArea>
             </Table.Td>
             <Table.Td> {hash} </Table.Td>
             <Table.Td>{finishEventName}</Table.Td>
@@ -109,4 +111,5 @@ export interface FileRowProps {
     file: string,
     checkMode: boolean,
     onDelete: () => void,
+    onComplete: (hash: string) => void,
 }

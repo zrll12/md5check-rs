@@ -9,6 +9,7 @@ export default function HomePage() {
     const [md5file, setMD5File] = useState('');
     const [files, setFiles] = useState<string[]>([]);
     const [checkMode, setCheckMode] = useState(true);
+    const [hash, setHash] = useState({});
 
     async function selectFile() {
         invoke('get_md5_list').then((res) => {
@@ -53,7 +54,7 @@ export default function HomePage() {
                     </Group>
                 </Center>
 
-                <ScrollArea w={800}>
+                <ScrollArea w="100%">
                     <Box w={1200}>
                         <Table>
                             <Table.Thead>
@@ -67,8 +68,7 @@ export default function HomePage() {
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
-                                {// @ts-ignore
-                                    files.map((file: string, index: number) =>
+                                {files.map((file: string, index: number) =>
                                     <FileRow
                                       checkMode
                                       file={file}
