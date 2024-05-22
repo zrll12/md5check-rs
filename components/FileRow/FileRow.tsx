@@ -1,10 +1,12 @@
 'use client';
 
 import { Button, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
 import { range } from '@mantine/hooks';
+import CircleCheck from '@/components/Icon/CircleCheck';
+import CircleX from '@/components/Icon/CircleX';
 
 function randomString(length: number) {
     const chars = '1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm';
@@ -101,10 +103,18 @@ export default function FileRow(props: FileRowProps) {
                             ({getProperSizePrompt(progress)}/{getProperSizePrompt(size)})
                         </Text>
                     }
+                    {props.importedHash !== undefined && finished &&
+                        <Text c={props.importedHash === hash ? 'green' : 'red'}>
+                            props.importedHash === hash ?
+                            <CircleCheck /> : <CircleX />
+                        </Text>
+                    }
                 </ScrollArea>
             </Table.Td>
             <Table.Td> {hash} </Table.Td>
-            <Table.Td>{finishEventName}</Table.Td>
+            <Table.Td>
+                {props.importedHash === undefined ? '' : props.importedHash}
+            </Table.Td>
         </Table.Tr>
     );
 }
@@ -112,6 +122,7 @@ export default function FileRow(props: FileRowProps) {
 export interface FileRowProps {
     file: string,
     checkMode: boolean,
+    importedHash: string | undefined,
     onDelete: () => void,
     onComplete: (hash: string) => void,
 }

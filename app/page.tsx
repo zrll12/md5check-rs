@@ -6,17 +6,17 @@ import { invoke } from '@tauri-apps/api/tauri';
 import FileRow from '@/components/FileRow/FileRow';
 import FilePlus from '@/components/Icon/FilePlus';
 import FileExport from '@/components/Icon/FileExport';
+import FileImport from '@/components/Icon/FileImport';
 
 export default function HomePage() {
-    const [md5file, setMD5File] = useState('');
     const [files, setFiles] = useState<string[]>([]);
     const [checkMode, setCheckMode] = useState(true);
     const [hash, setHash] = useState(new Map());
+    const [importHashMap, setImportHashMap] = useState(new Map());
 
     async function selectFile() {
         invoke('get_md5_list').then((res) => {
             setFiles([]);
-            setMD5File(res as string);
             setCheckMode(true);
         });
     }
@@ -45,9 +45,9 @@ export default function HomePage() {
                 <Space />
                 <Center>
                     <Group>
+                        <Button onClick={addNewFile} leftSection={<FilePlus />}>Add new file</Button>
+                        <Button onClick={selectFile} leftSection={<FileImport />}>Import file</Button>
                         <Button onClick={exportHash} leftSection={<FileExport />}>Export</Button>
-                        <Button onClick={selectFile}>{md5file === '' ? 'Open file' : `MD5 file: ${md5file}`}</Button>
-                        <Button variant="light" onClick={addNewFile} leftSection={<FilePlus />}>Add new file</Button>
 
                         {files.length !== 0 &&
                             <Button
@@ -79,6 +79,7 @@ export default function HomePage() {
                                     <FileRow
                                       checkMode
                                       file={file}
+                                      importedHash={importHashMap.get(file)}
                                       onDelete={() => {
                                           const deleted_file = [...files];
                                             deleted_file[index] = '';
