@@ -4,12 +4,14 @@ import { Button, Center, Group, Space, Stack, Table, ScrollArea, Box } from '@ma
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import FileRow from '@/components/FileRow/FileRow';
+import FilePlus from '@/components/Icon/FilePlus';
+import FileExport from '@/components/Icon/FileExport';
 
 export default function HomePage() {
     const [md5file, setMD5File] = useState('');
     const [files, setFiles] = useState<string[]>([]);
     const [checkMode, setCheckMode] = useState(true);
-    const [hash, setHash] = useState({});
+    const [hash, setHash] = useState(new Map());
 
     async function selectFile() {
         invoke('get_md5_list').then((res) => {
@@ -21,11 +23,9 @@ export default function HomePage() {
 
     async function addNewFile() {
         invoke('get_new_file').then((res) => {
-            console.log(res);
             const newFiles = res as string[];
             const newFile = [...files];
             for (const file of newFiles) {
-                console.log(file);
                 if (!files.includes(file)) {
                     newFile.push(file);
                 }
@@ -34,27 +34,34 @@ export default function HomePage() {
         });
     }
 
+    async function exportHash() {
+        const exportHashes = files.map((e) => [e, hash.get(e) as string]);
+        invoke('export', { files: exportHashes }).then(() => {});
+    }
+
     return (
         <>
             <Stack>
                 <Space />
                 <Center>
                     <Group>
+                        <Button onClick={exportHash} leftSection={<FileExport />}>Export</Button>
                         <Button onClick={selectFile}>{md5file === '' ? 'Open file' : `MD5 file: ${md5file}`}</Button>
-                        {md5file !== '' &&
+                        <Button variant="light" onClick={addNewFile} leftSection={<FilePlus />}>Add new file</Button>
+
+                        {files.length !== 0 &&
                             <Button
                               variant="subtle"
+                              color="red"
                               onClick={() => {
-                                    setMD5File('');
-                                    setCheckMode(false);
-                                }}>Close File
+                                  setFiles([]);
+                                  setHash(new Map());
+                                }}>Clear
                             </Button>}
-                        {md5file === '' &&
-                            <Button variant="light" onClick={addNewFile}>Add new file</Button>}
                     </Group>
                 </Center>
 
-                <ScrollArea w="100%">
+                <ScrollArea w="100%" offsetScrollbars>
                     <Box w={1200}>
                         <Table>
                             <Table.Thead>
@@ -76,11 +83,15 @@ export default function HomePage() {
                                           const deleted_file = [...files];
                                             deleted_file[index] = '';
                                             setFiles(deleted_file);
-                                        }} />)}
+                                        }}
+                                      onComplete={(fileHash) => {
+                                          const newHash = hash;
+                                          newHash.set(file, fileHash);
+                                          setHash(newHash);
+                                    }} />)}
                             </Table.Tbody>
                         </Table>
                     </Box>
-                    <Space h={20} />
                 </ScrollArea>
             </Stack>
         </>

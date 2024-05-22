@@ -1,7 +1,7 @@
 'use client';
 
-import {Box, Button, Menu, Progress, ScrollArea, Table, Text} from '@mantine/core';
-import { useState } from 'react';
+import { Button, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
+import {useEffect, useState} from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
 import { range } from '@mantine/hooks';
@@ -43,6 +43,7 @@ export default function FileRow(props: FileRowProps) {
         if (event.event === finishEventName) {
             setHash(event.payload as string);
             setFinished(true);
+            props.onComplete(event.payload as string);
         }
     }).then(() => {});
 
@@ -67,6 +68,10 @@ export default function FileRow(props: FileRowProps) {
             }
         });
 
+    useEffect(() => () => {
+        invoke('stop_sum', { event: id }).then(() => {});
+        });
+
     return (
         <Table.Tr key={props.file}>
             <Table.Td>
@@ -78,10 +83,7 @@ export default function FileRow(props: FileRowProps) {
                     </Menu.Target>
                     <Menu.Dropdown>
                         <Menu.Item
-                          onClick={() => {
-                            invoke('stop_sum', { event: id })
-                                .then(props.onDelete);
-                          }}
+                          onClick={props.onDelete}
                           color="red">Remove this file from list
                         </Menu.Item>
                     </Menu.Dropdown>
