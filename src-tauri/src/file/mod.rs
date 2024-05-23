@@ -1,16 +1,19 @@
-mod export;
-
-use std::panic::panic_any;
 use std::path::{Path, PathBuf};
-use relative_path::{PathExt, RelativePathBuf};
+
+use relative_path::PathExt;
 use rfd::AsyncFileDialog;
+
 use crate::file::export::save_hashes;
+use crate::file::import::import_file;
+
+mod export;
+mod import;
 
 #[tauri::command]
-pub async fn get_md5_list() -> Result<String, String> {
+pub async fn get_md5_list() -> Result<Vec<(String, String)>, String> {
     let file = AsyncFileDialog::new()
         .add_filter("md5", &["md5"]).pick_file().await.ok_or("No file selected")?;
-    Ok(file.path().canonicalize().unwrap().to_str().unwrap().to_string())
+    import_file(file).await
 }
 
 #[tauri::command]

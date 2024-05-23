@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
+import { Box, Button, Group, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
@@ -11,7 +11,9 @@ import CircleX from '@/components/Icon/CircleX';
 function randomString(length: number) {
     const chars = '1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm';
     let result = '';
-    range(0, length).forEach(() => { result += chars[Math.floor(Math.random() * chars.length)]; });
+    range(0, length).forEach(() => {
+        result += chars[Math.floor(Math.random() * chars.length)];
+    });
     return result;
 }
 
@@ -47,7 +49,8 @@ export default function FileRow(props: FileRowProps) {
             setFinished(true);
             props.onComplete(event.payload as string);
         }
-    }).then(() => {});
+    }).then(() => {
+    });
 
     invoke('get_file_size', { file: props.file })
         .then((value) => {
@@ -55,7 +58,11 @@ export default function FileRow(props: FileRowProps) {
             if (!started) {
                 console.log(props.file, fileName);
                 setStarted(true);
-                invoke('sum_md5', { name: props.file, event: id }).then(() => {});
+                invoke('sum_md5', {
+                    name: props.file,
+                    event: id,
+                }).then(() => {
+                });
 
                 listen(progressEventName, (event) => {
                     if (event.event === progressEventName) {
@@ -66,13 +73,15 @@ export default function FileRow(props: FileRowProps) {
                             setProgressPercent((progress_new / value as number) * 100);
                         }
                     }
-                }).then(() => {});
+                }).then(() => {
+                });
             }
         });
 
     useEffect(() => () => {
-        invoke('stop_sum', { event: id }).then(() => {});
+        invoke('stop_sum', { event: id }).then(() => {
         });
+    });
 
     return (
         <Table.Tr key={props.file}>
@@ -96,19 +105,21 @@ export default function FileRow(props: FileRowProps) {
                 <Progress size="xl" value={finished ? 100 : progressPercent} />
             </Table.Td>
             <Table.Td>
-                <ScrollArea w={finished ? 80 : 220}>
-                    {finished ? 'Finished' :
-                        <Text>
-                            {progressPercent.toFixed(0)}%
-                            ({getProperSizePrompt(progress)}/{getProperSizePrompt(size)})
-                        </Text>
-                    }
-                    {props.importedHash !== undefined && finished &&
-                        <Text c={props.importedHash === hash ? 'green' : 'red'}>
-                            props.importedHash === hash ?
-                            <CircleCheck /> : <CircleX />
-                        </Text>
-                    }
+                <ScrollArea w={finished ? 100 : 220}>
+                    <Group>
+                        {finished ? 'Finished' :
+                            <Text>
+                                {progressPercent.toFixed(0)}%
+                                ({getProperSizePrompt(progress)}/{getProperSizePrompt(size)})
+                            </Text>
+                        }
+                        {props.importedHash !== undefined && finished &&
+                            <Text c={props.importedHash === hash ? 'green' : 'red'}>
+                                {props.importedHash === hash ?
+                                    <CircleCheck /> : <CircleX />}
+                            </Text>
+                        }
+                    </Group>
                 </ScrollArea>
             </Table.Td>
             <Table.Td> {hash} </Table.Td>

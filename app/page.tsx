@@ -10,14 +10,23 @@ import FileImport from '@/components/Icon/FileImport';
 
 export default function HomePage() {
     const [files, setFiles] = useState<string[]>([]);
-    const [checkMode, setCheckMode] = useState(true);
     const [hash, setHash] = useState(new Map());
     const [importHashMap, setImportHashMap] = useState(new Map());
 
     async function selectFile() {
-        invoke('get_md5_list').then((res) => {
-            setFiles([]);
-            setCheckMode(true);
+        invoke('get_md5_list').then((currentFileImported) => {
+            console.log(currentFileImported);
+            const currentFile = currentFileImported as string[][];
+            const newHashMap = importHashMap;
+            const newFiles = [...files];
+            for (const [fileMD5, filePath] of currentFile) {
+                newFiles.push(filePath);
+                newHashMap.set(filePath, fileMD5);
+            }
+            console.log(newFiles, newHashMap);
+
+            setImportHashMap(newHashMap);
+            setFiles(newFiles);
         });
     }
 
@@ -25,9 +34,9 @@ export default function HomePage() {
         invoke('get_new_file').then((res) => {
             const newFiles = res as string[];
             const newFile = [...files];
-            for (const file of newFiles) {
-                if (!files.includes(file)) {
-                    newFile.push(file);
+            for (const fileElement of newFiles) {
+                if (!files.includes(fileElement)) {
+                    newFile.push(fileElement);
                 }
             }
             setFiles(newFile);
@@ -71,7 +80,7 @@ export default function HomePage() {
                                     <Table.Th>Progress</Table.Th>
                                     <Table.Th></Table.Th>
                                     <Table.Th>Hash</Table.Th>
-                                    <Table.Th>Id</Table.Th>
+                                    <Table.Th>Recorded</Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
