@@ -65,6 +65,7 @@ export default function HomePage() {
                               onClick={() => {
                                   setFiles([]);
                                   setHash(new Map());
+                                  setImportHashMap(new Map());
                                 }}>Clear
                             </Button>}
                     </Group>

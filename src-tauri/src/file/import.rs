@@ -5,7 +5,6 @@ use rfd::FileHandle;
 pub async fn import_file(file: FileHandle) -> Result<Vec<(String, String)>, String> {
     let content = String::from_utf8(file.read().await).unwrap();
     let base_path = PathBuf::from(file).parent().unwrap().canonicalize().unwrap();
-    println!("base: {base_path:?}");
     let mut result = Vec::new();
 
     let content = content.split("\n");
@@ -18,11 +17,9 @@ pub async fn import_file(file: FileHandle) -> Result<Vec<(String, String)>, Stri
         let path = PathBuf::from(line_content.1);
         let mut final_path = base_path.clone();
         final_path.push(path);
+        println!("Adding file: {final_path:?}");
         result.push((line_content.0, final_path.canonicalize().unwrap().to_str().unwrap().to_string()));
-        println!("file: {final_path:?}");
     }
-
-    println!("result: {result:?}");
 
     Ok(result)
 }
@@ -38,5 +35,5 @@ fn deserialize_line(line: &str) -> Result<(String, String), ()> {
         return Err(());
     };
 
-    Ok((line_content.get(0).unwrap().to_string(), line_content.get(1).unwrap().to_string()))
+    Ok((line_content.get(0).unwrap().trim().to_string(), line_content.get(1).unwrap().trim().to_string()))
 }

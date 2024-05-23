@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Group, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
+import { Button, Group, Menu, Progress, ScrollArea, Table, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import { listen } from '@tauri-apps/api/event';
@@ -78,10 +78,11 @@ export default function FileRow(props: FileRowProps) {
             }
         });
 
-    useEffect(() => () => {
-        invoke('stop_sum', { event: id }).then(() => {
-        });
-    });
+    function unmount() {
+        console.log('unmount');
+        invoke('stop_sum', { event: id }).then(() => {});
+    }
+    useEffect(() => () => unmount(), []);
 
     return (
         <Table.Tr key={props.file}>
