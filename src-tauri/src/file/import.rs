@@ -35,5 +35,5 @@ fn deserialize_line(line: &str) -> Result<(String, String), ()> {
         return Err(());
     };
 
-    Ok((line_content.get(0).unwrap().trim().to_string(), line_content.get(1).unwrap().trim().to_string()))
+    Ok((line_content.get(0).unwrap().trim().to_string().to_uppercase(), line_content.get(1).unwrap().trim().to_string()))
 }
