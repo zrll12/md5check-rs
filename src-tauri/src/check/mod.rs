@@ -4,10 +4,11 @@ use threads_pool::{block_on, Config, ConfigStatus, ThreadPool, TimeoutPolicy};
 use crate::check::md5::MD5Checker;
 
 mod md5;
+mod blake3;
 
 lazy_static!{
     static ref THREAD_CACHE: Cache<String, bool> = Cache::builder().build();
-    static ref THREAD_POOL: ThreadPool = ThreadPool::new_with_config(3, Config::new().set_timeout_policy(TimeoutPolicy::DirectRun).clone());
+    static ref THREAD_POOL: ThreadPool = ThreadPool::new(3);
 }
 
 #[tauri::command]
