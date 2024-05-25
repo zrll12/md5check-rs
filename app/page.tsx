@@ -1,17 +1,20 @@
 'use client';
 
-import { Button, Center, Group, Space, Stack, Table, ScrollArea, Box } from '@mantine/core';
+import {Button, Center, Group, Space, Stack, Table, ScrollArea, Box, Menu, Text} from '@mantine/core';
 import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
 import FileRow from '@/components/FileRow/FileRow';
 import FilePlus from '@/components/Icon/FilePlus';
 import FileExport from '@/components/Icon/FileExport';
 import FileImport from '@/components/Icon/FileImport';
+import FilesIcon from '@/components/Icon/FilesIcon';
+import HashTypeSelector, { HashType } from '@/components/HashTypeSelector/HashTypeSelector';
 
 export default function HomePage() {
     const [files, setFiles] = useState<string[]>([]);
     const [hash, setHash] = useState(new Map());
     const [importHashMap, setImportHashMap] = useState(new Map());
+    const [hashType, setHashType] = useState(HashType.MD5);
 
     async function selectFile() {
         invoke('get_md5_list').then((currentFileImported) => {
@@ -54,20 +57,40 @@ export default function HomePage() {
                 <Space />
                 <Center>
                     <Group>
-                        <Button onClick={addNewFile} leftSection={<FilePlus />}>Add new file</Button>
-                        <Button onClick={selectFile} leftSection={<FileImport />}>Import file</Button>
-                        <Button onClick={exportHash} leftSection={<FileExport />}>Export</Button>
+                        <Menu>
+                            <Menu.Target>
+                                <Button leftSection={<FilesIcon />}>Files</Button>
+                            </Menu.Target>
 
-                        {files.length !== 0 &&
-                            <Button
-                              variant="subtle"
-                              color="red"
-                              onClick={() => {
-                                  setFiles([]);
-                                  setHash(new Map());
-                                  setImportHashMap(new Map());
-                                }}>Clear
-                            </Button>}
+                            <Menu.Dropdown>
+                                <Menu.Label>Action</Menu.Label>
+                                <Menu.Item onClick={addNewFile} leftSection={<FilePlus />}>
+                                    Add single file
+                                </Menu.Item>
+                                <Menu.Item onClick={selectFile} leftSection={<FileImport />}>
+                                    Import hash list
+                                </Menu.Item>
+                                <Menu.Item onClick={exportHash} leftSection={<FileExport />}>
+                                    Export hash list
+                                </Menu.Item>
+                                {files.length > 0 &&
+                                    <>
+                                        <Menu.Divider />
+                                        <Menu.Label>Danger Zone</Menu.Label>
+                                        <Menu.Item
+                                          color="red"
+                                          onClick={() => {
+                                                setFiles([]);
+                                                setHash(new Map());
+                                                setImportHashMap(new Map());
+                                            }}> Clear
+                                        </Menu.Item>
+                                    </>
+                                }
+                            </Menu.Dropdown>
+                        </Menu>
+
+                        <HashTypeSelector onSelect={setHashType} />
                     </Group>
                 </Center>
 
